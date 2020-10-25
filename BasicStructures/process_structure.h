@@ -11,7 +11,9 @@ struct process{
     int cycles;
     int cyclesToFinish;
     struct interval * intervalList;
+    int id;
 };
+struct process * createHead();
 struct process * get_closest_finish(struct process * headList);
 void delete_list(struct process * headList);
 int add_process_list(int period, int cycles, struct  process * headList);

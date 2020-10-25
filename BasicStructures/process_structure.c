@@ -34,31 +34,43 @@ void delete_list(struct process *headList) {
 }
 
 int add_process_list(int period, int cycles, struct process *headList) {
-    if (headList==NULL){
-        return  -1;
+    int idPrev = 0;
+    if (headList == NULL) {
+        return -1;
     }
     while (headList != NULL) {
+        idPrev = headList->id;
         headList = headList->next;
     }
     headList->next = malloc(sizeof(struct process));
     headList->next->cycles = cycles;
     headList->next->period = period;
     headList->next->cyclesToFinish = cycles;
+    headList->id = idPrev + 1;
     return 1;
 }
-int process_cycle_process(int cycle,struct process * process){
-    if (process==NULL){
+
+int process_cycle_process(int cycle, struct process *process) {
+    if (process == NULL) {
         printf("Error en funcion process_cycle_process, proceso nulo");
         return -1;
-    } else{
-        if (process->intervalList = NULL){
+    } else {
+        if (process->intervalList = NULL) {
             process->intervalList = malloc(sizeof(struct interval));
             process->intervalList->unitBegin = cycle;
-            process->intervalList->unitEnd = cycle+1;
+            process->intervalList->unitEnd = cycle + 1;
             return 0;
-        } else{
-            process_new_cycle(process->intervalList,cycle);
+        } else {
+            process_new_cycle(process->intervalList, cycle);
             return 0;
         }
     }
+}
+
+struct process *createHead(int cyclesToFinish, int period) {
+    struct process *newProcess = malloc(sizeof(struct process));
+    newProcess->id = 3;
+    newProcess->cyclesToFinish = cyclesToFinish;
+    newProcess->period = period;
+    newProcess->cycles = cyclesToFinish;
 }
