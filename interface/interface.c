@@ -5,9 +5,16 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <unistd.h>
+#include <gtk/gtk.h>
+//gcc test.c -o test $(pkg-config --cflags --libs gtk+-2.0) -lallegro -lallegro_dialog
 
-// Compile with -> gcc mapeo.c -o mapeo $(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
-// execute with -> ./mapeo
+//This is only with allegro:
+// Compile with -> gcc interface.c -o interface $(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
+// execute with -> ./interface
+
+//This is with allegro and gtk:
+//Compiling: gcc interface.c -o interface $(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 gtk+-3.0 --libs --cflags)
+//Exdcuting: ./interface
 
 
 
@@ -38,6 +45,9 @@ struct martian
     int pos_y;                     // Y position in canvas
     int id;                        // List position.
     int color;                     // color of the martian
+    int energy;
+    int energy_backup;
+    int period;
     ALLEGRO_BITMAP* martian_color; // Image.
 };
 
@@ -52,6 +62,13 @@ struct life_bar{
     int b;
 };
 
+typedef struct martian_data
+{
+    GtkWidget *period;
+    GtkWidget *energy;
+} martian_data;
+martian_data* md;
+
 struct martian MARTIANS[100]; // Array of martians.
 struct life_bar MARTIAN_BARS[100]; // Array of martian bars.
 
@@ -59,18 +76,24 @@ struct life_bar MARTIAN_BARS[100]; // Array of martian bars.
 void must_init(bool test, const char *description);
 void matrix_to_image(int x_matrix, int y_matriz, int *x_image, int *y_image);
 bool is_valid_pos(int x, int y);
-int create_martian(int pos_x, int pos_y);
+int create_martian(int pos_x, int pos_y, int energy, int period);
 void move_martian(int id, int x, int y);
 void martian_bar(int id, int color);
-void reduce_bar(int id);
+void reduce_bar(int id, float percentage);
 void reload_bar(int id);
-
+//-----Some functions for interface--------
+int interface_init(int argc, char *argv[]);
+static void on_activate (GtkApplication *app);
+static void new_martian_window(GtkApplication *app);
+static void button_get_info(GtkWidget *widget, gpointer data);
 int martian_counter = 0;
 int bar_pos_x = 1100;// First bar
 int bar_pos_y = 0;   // First bar
 ALLEGRO_KEYBOARD_STATE ks;
+char period[10];
+char energia[10];
 
-int main(){
+int main(int argc, char *argv[]){
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
     
@@ -98,8 +121,8 @@ int main(){
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
     //create a martian:
-    create_martian(0,0);
-    create_martian(3,3);
+    create_martian(0,0,1,1);
+    create_martian(3,3,1,1);
 
     bool done = false;
     bool redraw = true;
@@ -126,15 +149,17 @@ int main(){
             case ALLEGRO_EVENT_KEY_DOWN:
                 if(event.keyboard.keycode == ALLEGRO_KEY_UP){
                     move_martian(1, MARTIANS[1].matrix_position_x, MARTIANS[1].matrix_position_y-=1);
-                    reduce_bar(1);
+                    reduce_bar(1, 1);
                 }
                 if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
                 {
                     move_martian(1, MARTIANS[1].matrix_position_x, MARTIANS[1].matrix_position_y+=1);
-                    reduce_bar(1);
+                    reduce_bar(1, 1);
                 }
                 if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){
-                    create_martian(martian_counter,martian_counter);
+                    //create_martian(martian_counter,martian_counter);
+                    interface_init(argc, argv);
+                    g_free(md);
                 }
                 if(event.keyboard.keycode != ALLEGRO_KEY_X){
                     break;
@@ -153,25 +178,30 @@ int main(){
             al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 530, 0, "SALIDA");
             al_draw_bitmap(laberinto, 0, 0, 0);
             
-            
-            if (MARTIANS[0].matrix_position_y < 16)
+            for (int i = 0; i < martian_counter; i++)
             {
-                if(MARTIANS[0].matrix_position_x < 16){
-                    if (is_valid_pos(MARTIANS[0].matrix_position_x, MARTIANS[0].matrix_position_y))
+                
+            
+            
+            if (MARTIANS[i].matrix_position_y < 16)
+            {
+                if(MARTIANS[i].matrix_position_x < 16){
+                    if (is_valid_pos(MARTIANS[i].matrix_position_x, MARTIANS[i].matrix_position_y))
                     {
-                        move_martian(MARTIANS[0].id, MARTIANS[0].matrix_position_x, MARTIANS[0].matrix_position_y);
-                        al_draw_bitmap(MARTIANS[0].martian_color, MARTIANS[0].pos_x, MARTIANS[0].pos_y, 0);
-                        MARTIANS[0].matrix_position_x++;
-                        reduce_bar(MARTIANS[0].id);
+                        move_martian(MARTIANS[i].id, MARTIANS[i].matrix_position_x, MARTIANS[i].matrix_position_y);
+                        al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
+                        MARTIANS[i].matrix_position_x++;
+                        reduce_bar(MARTIANS[i].id, 0.5);
                     }else{
-                        MARTIANS[0].matrix_position_x++;
+                        MARTIANS[i].matrix_position_x++;
                     }
                 }else{
-                    MARTIANS[0].matrix_position_y++;
-                    MARTIANS[0].matrix_position_x = 0;
+                    MARTIANS[i].matrix_position_y++;
+                    MARTIANS[i].matrix_position_x = 0;
                 }
             }else{
-                MARTIANS[0].matrix_position_y = 0;
+                MARTIANS[i].matrix_position_y = 0;
+            }
             }
             
             sleep(1);
@@ -228,7 +258,7 @@ bool is_valid_pos(int x, int y){
     }
 }
 
-int create_martian(int pos_x, int pos_y){
+int create_martian(int pos_x, int pos_y, int energy, int period){
     int pos_x_converted = 0;
     int pos_y_converted = 0;
     matrix_to_image(pos_x, pos_y, &pos_x_converted, &pos_y_converted);
@@ -240,6 +270,9 @@ int create_martian(int pos_x, int pos_y){
     new_Martian.pos_y = pos_y_converted;
     new_Martian.color = rand()%4;
     new_Martian.martian_color = al_load_bitmap(martian_color_array[new_Martian.color]);
+    new_Martian.energy = energy;
+    new_Martian.energy_backup = energy;
+    new_Martian.period = period;
     MARTIANS[martian_counter] = new_Martian;
     martian_counter++;
     martian_bar(new_Martian.id, new_Martian.color);
@@ -287,15 +320,101 @@ void martian_bar(int id, int color){
     MARTIAN_BARS[id] = new_Bar;
 }
 
-void reduce_bar(int id){
-    if (MARTIAN_BARS[id].dot_x2 < MARTIAN_BARS[id].dot_x1){
+void reduce_bar(int id, float percentage){
+    if (MARTIAN_BARS[id].dot_x2 <= MARTIAN_BARS[id].dot_x1){
         MARTIAN_BARS[id].dot_x2 = MARTIAN_BARS[id].dot_x1;
-        reload_bar(id);
+        MARTIANS[id].energy = 0;
+        //reload_bar(id);
     }else{
-        MARTIAN_BARS[id].dot_x2 -= 10;
+        MARTIAN_BARS[id].dot_x2 -= (int)150*percentage;
+        MARTIANS[id].energy -= 1; 
     }
 }
 
 void reload_bar(int id){
     MARTIAN_BARS[id].dot_x2 = bar_pos_x + 150;
+    MARTIANS[id].energy = MARTIANS[id].energy_backup;
+}
+
+static void button_get_info(GtkWidget *widget, gpointer data){
+    printf("Hola\n");
+    martian_data* md = (martian_data*)data;
+    const gchar *period;
+    const gchar *energy;
+
+    period = gtk_entry_get_text (GTK_ENTRY (md->period));
+    energy = gtk_entry_get_text (GTK_ENTRY (md->energy));
+    g_print ("Contents of entries:\n%s\n%s\n", period, energy);
+
+    int martian_period = atoi(period);
+    int martian_energy = atoi(energy);
+
+    create_martian(martian_counter, martian_counter, martian_energy, martian_period);
+
+    printf("Period %i and energy %i\n", martian_period, martian_energy);
+    
+
+}
+
+static void on_activate (GtkApplication *app) {
+  // Create a new window
+  GtkWidget *window = gtk_application_window_new (app);
+  //Resizing the window and make it not resizable.
+  gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
+  gtk_window_set_resizable (GTK_WINDOW(window), FALSE);
+
+  GtkWidget *entry = gtk_entry_new ();
+  GtkWidget *label = gtk_label_new_with_mnemonic ("_Hello");
+  gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
+  // Create a new button
+  GtkWidget *button = gtk_button_new_with_label ("Hello, World!");
+  // When the button is clicked, close the window passed as an argument
+  g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_window_close), window);
+  
+  //gtk_container_add(GTK_CONTAINER(window), entry);
+  gtk_container_add(GTK_CONTAINER(window), label);
+  //gtk_container_add(GTK_CONTAINER(window), button);
+  gtk_widget_show_all (window);
+}
+
+static void new_martian_window(GtkApplication *app){
+    GtkWidget *window = gtk_application_window_new (app);
+    gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
+    gtk_window_set_resizable (GTK_WINDOW(window), FALSE);
+    GtkWidget *table = gtk_table_new(3, 2, FALSE);
+    gtk_container_add(GTK_CONTAINER(window), table);
+
+    GtkWidget *label_period = gtk_label_new("Período:");
+    GtkWidget *label_energy = gtk_label_new("Energía:");
+
+    gtk_table_attach(GTK_TABLE(table), label_period, 0, 1, 0, 1, GTK_FILL | GTK_SHRINK, GTK_FILL | GTK_SHRINK, 5, 5);
+    gtk_table_attach(GTK_TABLE(table), label_energy, 0, 1, 1, 2, GTK_FILL | GTK_SHRINK, GTK_FILL | GTK_SHRINK, 5, 5);
+
+    //GtkWidget *entry_period = gtk_entry_new();
+    //GtkWidget *entry_energy = gtk_entry_new();
+
+    md = g_malloc(sizeof(*md));
+
+    md->period = gtk_entry_new();
+    md->energy = gtk_entry_new();
+
+
+    gtk_table_attach(GTK_TABLE(table), md->period, 1, 2, 0, 1, GTK_FILL | GTK_SHRINK, GTK_FILL | GTK_SHRINK, 5, 5);
+    gtk_table_attach(GTK_TABLE(table), md->energy , 1, 2, 1, 2, GTK_FILL | GTK_SHRINK, GTK_FILL | GTK_SHRINK, 5, 5);
+
+    GtkWidget *button = gtk_button_new_with_label ("Agregar Marciano");
+    gtk_table_attach(GTK_TABLE(table), button, 1, 2,2,3, GTK_FILL | GTK_SHRINK, GTK_FILL | GTK_SHRINK, 5, 5);
+
+    //g_signal_connect_swapped (button, "clicked", G_CALLBACK(button_get_info), (gpointer) md);
+    g_signal_connect (button, "clicked", G_CALLBACK(button_get_info), (gpointer) md);
+    
+    gtk_container_add(GTK_CONTAINER(window), table);
+    gtk_widget_show_all (window);
+}
+
+int interface_init(int argc, char *argv[]){
+    GtkApplication *app = gtk_application_new ("com.example.GtkApplication", G_APPLICATION_FLAGS_NONE);
+    //g_signal_connect (app, "activate", G_CALLBACK (on_activate), NULL);
+    g_signal_connect (app, "activate", G_CALLBACK (new_martian_window), NULL);
+    return g_application_run (G_APPLICATION (app), argc, argv);
 }
