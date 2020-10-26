@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <unistd.h>
-#include <gtk/gtk.h>
+
 //gcc test.c -o test $(pkg-config --cflags --libs gtk+-2.0) -lallegro -lallegro_dialog
 
 //This is only with allegro:
@@ -16,87 +9,51 @@
 //Compiling: gcc interface.c -o interface $(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 gtk+-3.0 --libs --cflags)
 //Exdcuting: ./interface
 
-
-
-int matrix_maze[16][16] = {
-                            {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, //1
-                            {0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1}, //2
-                            {1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1}, //3
-                            {1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1}, //4
-                            {1,0,1,0,1,0,1,1,0,1,0,1,0,1,0,1}, //5
-                            {1,0,0,0,0,0,1,0,0,1,0,0,0,1,0,1}, //6
-                            {1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1}, //7
-                            {1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1}, //8
-                            {1,0,1,0,1,0,1,0,1,1,0,1,0,1,0,0}, //9
-                            {1,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1}, //10
-                            {1,0,1,0,0,0,1,0,1,1,1,1,1,0,0,1}, //11
-                            {1,0,1,1,0,1,1,1,1,0,0,0,1,0,1,1}, //12
-                            {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,1}, //13
-                            {1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1}, //14
-                            {1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1}, //15
-                            {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, //16    
-                          };
-const char *martian_color_array[] = {"marciano1.png", "marciano2.png", "marciano3.png", "marciano4.png","marciano5.png"};
-struct martian
-{
-    int matrix_position_x;         // X position in matrix
-    int matrix_position_y;         // Y position in matrix
-    int pos_x;                     // X position in canvas
-    int pos_y;                     // Y position in canvas
-    int id;                        // List position.
-    int color;                     // color of the martian
-    int energy;
-    int energy_backup;
-    int period;
-    ALLEGRO_BITMAP* martian_color; // Image.
-};
-
-struct life_bar{
-    int id;
-    int dot_x1;
-    int dot_x2;
-    int dot_y1;
-    int dot_y2;
-    int r;
-    int g;
-    int b;
-};
-
-typedef struct martian_data
-{
-    GtkWidget *period;
-    GtkWidget *energy;
-} martian_data;
-martian_data* md;
-
-struct martian MARTIANS[100]; // Array of martians.
-struct life_bar MARTIAN_BARS[100]; // Array of martian bars.
-
-//------Some usefull funtions-----------------
-void must_init(bool test, const char *description);
-void matrix_to_image(int x_matrix, int y_matriz, int *x_image, int *y_image);
-bool is_valid_pos(int x, int y);
-int create_martian(int pos_x, int pos_y, int energy, int period);
-void move_martian(int id, int x, int y);
-void martian_bar(int id, int color);
-void reduce_bar(int id, float percentage);
-void reload_bar(int id);
-//-----Some functions for interface--------
-int interface_init(int argc, char *argv[]);
-static void on_activate (GtkApplication *app);
-static void new_martian_window(GtkApplication *app);
-static void button_get_info(GtkWidget *widget, gpointer data);
-int martian_counter = 0;
-int bar_pos_x = 1100;// First bar
-int bar_pos_y = 0;   // First bar
-ALLEGRO_KEYBOARD_STATE ks;
-char period[10];
-char energia[10];
-
+#include "interface.h"
+void init_vars(){
+    martian_counter = 0;
+    bar_pos_x = 1100;
+    bar_pos_y = 0;
+    char * array_to_copy[] = {"marciano1.png", "marciano2.png", "marciano3.png", "marciano4.png","marciano5.png"};
+    int i = 0;
+    while (i!=5){
+        martian_color_array[i] = array_to_copy[i];
+        i++;
+    }
+    i = 0;
+    int j = 0;
+    int matrix_to_copy[16][16] =  {
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, //1
+        {0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1}, //2
+        {1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1}, //3
+        {1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1}, //4
+        {1,0,1,0,1,0,1,1,0,1,0,1,0,1,0,1}, //5
+        {1,0,0,0,0,0,1,0,0,1,0,0,0,1,0,1}, //6
+        {1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1}, //7
+        {1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1}, //8
+        {1,0,1,0,1,0,1,0,1,1,0,1,0,1,0,0}, //9
+        {1,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1}, //10
+        {1,0,1,0,0,0,1,0,1,1,1,1,1,0,0,1}, //11
+        {1,0,1,1,0,1,1,1,1,0,0,0,1,0,1,1}, //12
+        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,1}, //13
+        {1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1}, //14
+        {1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1}, //15
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, //16
+    };
+    while (i != 16){
+        while (j!=16){
+            matrix_maze[i][j] = matrix_to_copy[i][j];
+            j++;
+        }
+        j=0;
+        i++;
+    }
+}
 int main(int argc, char *argv[]){
+    init_vars();
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
-    
+
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     must_init(timer, "timer");
@@ -144,7 +101,7 @@ int main(int argc, char *argv[]){
                 // game logic goes here.
                 redraw = true;
                 break;
-                
+
 
             case ALLEGRO_EVENT_KEY_DOWN:
                 if(event.keyboard.keycode == ALLEGRO_KEY_UP){
@@ -164,7 +121,7 @@ int main(int argc, char *argv[]){
                 if(event.keyboard.keycode != ALLEGRO_KEY_X){
                     break;
                 }
-                
+
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
                 done = true;
                 break;
@@ -177,12 +134,12 @@ int main(int argc, char *argv[]){
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 530, 0, "SALIDA");
             al_draw_bitmap(laberinto, 0, 0, 0);
-            
+
             for (int i = 0; i < martian_counter; i++)
             {
-                
-            
-            
+
+
+
             if (MARTIANS[i].matrix_position_y < 16)
             {
                 if(MARTIANS[i].matrix_position_x < 16){
@@ -203,21 +160,21 @@ int main(int argc, char *argv[]){
                 MARTIANS[i].matrix_position_y = 0;
             }
             }
-            
+
             sleep(1);
            for (int i = 0; i < martian_counter; i++)
            {
                al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
                al_draw_filled_rectangle(MARTIAN_BARS[i].dot_x1, MARTIAN_BARS[i].dot_y1, MARTIAN_BARS[i].dot_x2, MARTIAN_BARS[i].dot_y2, al_map_rgba_f(MARTIAN_BARS[i].r, MARTIAN_BARS[i].g, MARTIAN_BARS[i].b, 0.5));
            }
-           
+
            //al_draw_filled_rectangle(1100, 0, 1250, 50, al_map_rgba_f(0, 0, 0.5, 0.5));
-            
+
             //Everything here will be shown.
             al_flip_display();
 
-            
-            
+
+
 
 
             redraw = false;
@@ -229,7 +186,7 @@ int main(int argc, char *argv[]){
     {
         al_destroy_bitmap(MARTIANS[i].martian_color);
     }
-    
+
     al_destroy_font(font);
     al_destroy_display(disp);
     al_destroy_timer(timer);
@@ -327,7 +284,7 @@ void reduce_bar(int id, float percentage){
         //reload_bar(id);
     }else{
         MARTIAN_BARS[id].dot_x2 -= (int)150*percentage;
-        MARTIANS[id].energy -= 1; 
+        MARTIANS[id].energy -= 1;
     }
 }
 
@@ -352,7 +309,7 @@ static void button_get_info(GtkWidget *widget, gpointer data){
     create_martian(martian_counter, martian_counter, martian_energy, martian_period);
 
     printf("Period %i and energy %i\n", martian_period, martian_energy);
-    
+
 
 }
 
@@ -370,7 +327,7 @@ static void on_activate (GtkApplication *app) {
   GtkWidget *button = gtk_button_new_with_label ("Hello, World!");
   // When the button is clicked, close the window passed as an argument
   g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_window_close), window);
-  
+
   //gtk_container_add(GTK_CONTAINER(window), entry);
   gtk_container_add(GTK_CONTAINER(window), label);
   //gtk_container_add(GTK_CONTAINER(window), button);
@@ -407,7 +364,7 @@ static void new_martian_window(GtkApplication *app){
 
     //g_signal_connect_swapped (button, "clicked", G_CALLBACK(button_get_info), (gpointer) md);
     g_signal_connect (button, "clicked", G_CALLBACK(button_get_info), (gpointer) md);
-    
+
     gtk_container_add(GTK_CONTAINER(window), table);
     gtk_widget_show_all (window);
 }
