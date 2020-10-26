@@ -6,7 +6,7 @@
 #include <stdlib.h>
 int process_new_cycle(struct interval * head, int cycle){
     if (head == NULL){
-        printf("Error, no hay head");
+     //   printf("Error, no hay processHeadList");
         return -1;
     }
     while (head->nextInterval!=NULL){
@@ -23,7 +23,7 @@ int process_new_cycle(struct interval * head, int cycle){
 }
 int add_new_interval(struct interval * head, int begin){
     if (head == NULL){
-        printf("Error, no hay head");
+//        printf("Error, no hay processHeadList");
         return -1;
     }
     while (head->nextInterval!=NULL){
@@ -36,7 +36,7 @@ int add_new_interval(struct interval * head, int begin){
 }
 void delete_interval_list(struct interval * head){
     if (head==NULL){
-        printf("Error, no hay head");
+//        printf("Error, no hay processHeadList");
         return ;
     } else{
         struct interval * next;

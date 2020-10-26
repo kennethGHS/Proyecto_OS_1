@@ -8,15 +8,15 @@
 #include "../interface/interface.h"
 
 struct process *get_next_struct_process(int typeCalend);
-
-void execute_main_thread();
+pthread_t threads[20];
+void * execute_main_thread();
 
 pthread_mutex_t mutex_use_list;
-int mode = 0;
-struct process *head;
+int mode;
+int inExecution ;
+static struct process *processHeadList;
 int cycleNum;
 struct process *create_head_thread_safe(int cyclesToFinish, int period);
-
 struct process *add_process_list_thread_safe(int period, int cycles);
 
 #endif //PROYECTO_OS_1_PROCESS_ADMIN_H

@@ -8,8 +8,9 @@
 //This is with allegro and gtk:
 //Compiling: gcc interface.c -o interface $(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 gtk+-3.0 --libs --cflags)
 //Exdcuting: ./interface
-
+#include <pthread.h>
 #include "interface.h"
+#include "../ThreadManagement/process_admin.h"
 void init_vars(){
     martian_counter = 0;
     bar_pos_x = 1100;
@@ -40,6 +41,7 @@ void init_vars(){
         {1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1}, //15
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, //16
     };
+
     while (i != 16){
         while (j!=16){
             matrix_maze[i][j] = matrix_to_copy[i][j];
@@ -48,8 +50,14 @@ void init_vars(){
         j=0;
         i++;
     }
+    printf("El valor en matriz es %d",matrix_maze[1][2]);
+
 }
 int main(int argc, char *argv[]){
+    pthread_t * threadPrinc = malloc(sizeof(pthread_t));
+    pthread_create(threadPrinc,
+                   NULL,
+                   &execute_main_thread, NULL);
     init_vars();
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
@@ -77,9 +85,9 @@ int main(int argc, char *argv[]){
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
-    //create a martian:
-    create_martian(0,0,1,1);
-    create_martian(3,3,1,1);
+//    //create a martian:
+//    create_martian(0,0,1,1);
+//    create_martian(3,3,1,1);
 
     bool done = false;
     bool redraw = true;
@@ -90,7 +98,10 @@ int main(int argc, char *argv[]){
     int counter_y = 0;
 
     al_start_timer(timer);
+
     //main loop.
+    create_head_thread_safe(3,3);
+
     while(1)
     {
         al_wait_for_event(queue, &event);
@@ -208,6 +219,12 @@ void matrix_to_image(int x_matrix, int y_matrix, int *x_image, int *y_image){
 }
 
 bool is_valid_pos(int x, int y){
+    if (x<0 || y<0){
+        return false;
+    }
+    if (x>=16 || y>=16){
+        return false;
+    }
     if (matrix_maze[y][x] == 1){
         return false;
     }else{

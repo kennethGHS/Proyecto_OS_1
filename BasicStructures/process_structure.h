@@ -6,6 +6,11 @@
 #define PROYECTO_OS_1_PROCESS_STRUCTURE_H
 #include "interval_structure.h"
 #include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <semaphore.h>
 struct process{
     struct process * next;
     int period;
@@ -15,8 +20,9 @@ struct process{
     int id;
     int idAlien;
     int idAlienBar;
-    pthread_mutex_t mutex;
+    sem_t  mutex;
 };
+int already_all_executed(struct process * head);
 struct process *createHead(int cyclesToFinish, int period,int alienId, int alienBarId);
 struct process * get_closest_finish(struct process * headList);
 void delete_list(struct process * headList);

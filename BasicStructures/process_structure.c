@@ -82,7 +82,8 @@ struct process * add_process_list(int period, int cycles, struct process *headLi
     headList->next->id = idPrev + 1;
     headList->next->idAlien = alienId;
     headList->next->idAlienBar = alienBarId;
-    return 1;
+    headList->next->next = NULL;
+    return headList->next;
 }
 
 int process_cycle_process(int cycle, struct process *process) {
@@ -110,6 +111,8 @@ struct process *createHead(int cyclesToFinish, int period,int alienId, int alien
     newProcess->cycles = cyclesToFinish;
     newProcess->idAlien = alienId;
     newProcess->idAlienBar = alienBarId;
+    newProcess->next = NULL;
+    sem_init(&newProcess->mutex, 1, 0);
     return newProcess;
 }
 int increase_energy_period(struct process * head, int cycle){
@@ -124,4 +127,13 @@ int increase_energy_period(struct process * head, int cycle){
         head = head->next;
     }
     return 0;
+}
+int already_all_executed(struct process * head){
+    while (head!=NULL){
+        if (head->cyclesToFinish!=0){
+            return -1;
+        }
+        head = head->next;
+    }
+    return 1;
 }
