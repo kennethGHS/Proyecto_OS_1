@@ -12,7 +12,7 @@
 #include "interface.h"
 #include "../ThreadManagement/process_admin.h"
 void init_vars(){
-    martian_counter = 0;
+    martian_counter = -1;
     bar_pos_x = 1100;
     bar_pos_y = 0;
     char * array_to_copy[] = {"../images/marciano1.png", "../images/marciano2.png", "../images/marciano3.png", "../images/marciano4.png","../images/marciano5.png"};
@@ -146,33 +146,11 @@ int main(int argc, char *argv[]){
             al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 530, 0, "SALIDA");
             al_draw_bitmap(laberinto, 0, 0, 0);
 
-            for (int i = 0; i < martian_counter; i++)
-            {
-
-
-
-            if (MARTIANS[i].matrix_position_y < 16)
-            {
-                if(MARTIANS[i].matrix_position_x < 16){
-                    if (is_valid_pos(MARTIANS[i].matrix_position_x, MARTIANS[i].matrix_position_y))
-                    {
-                        move_martian(MARTIANS[i].id, MARTIANS[i].matrix_position_x, MARTIANS[i].matrix_position_y);
-                        al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
-                        MARTIANS[i].matrix_position_x++;
-                        reduce_bar(MARTIANS[i].id, 0.5);
-                    }else{
-                        MARTIANS[i].matrix_position_x++;
-                    }
-                }else{
-                    MARTIANS[i].matrix_position_y++;
-                    MARTIANS[i].matrix_position_x = 0;
-                }
-            }else{
-                MARTIANS[i].matrix_position_y = 0;
-            }
-            }
+            //Aca se puede poner alguna logica.
 
             sleep(1);
+
+            //Este for tiene que estar para poder pintar los marcianos que se vayan agregando.
            for (int i = 0; i < martian_counter; i++)
            {
                al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
@@ -193,6 +171,7 @@ int main(int argc, char *argv[]){
     }
 
     al_destroy_bitmap(laberinto);
+    //Este for debe estar para eliminar estos marcianos.
     for (int i = 0; i < martian_counter; i++)
     {
         al_destroy_bitmap(MARTIANS[i].martian_color);
