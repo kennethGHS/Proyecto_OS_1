@@ -14,7 +14,7 @@ void init_vars(){
     martian_counter = 0;
     bar_pos_x = 1100;
     bar_pos_y = 0;
-    char * array_to_copy[] = {"marciano1.png", "marciano2.png", "marciano3.png", "marciano4.png","marciano5.png"};
+    char * array_to_copy[] = {"../images/marciano1.png", "../images/marciano2.png", "../images/marciano3.png", "../images/marciano4.png","../images/marciano5.png"};
     int i = 0;
     while (i!=5){
         martian_color_array[i] = array_to_copy[i];
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
     must_init(font, "font");
 
     must_init(al_init_image_addon(), "image addon");
-    ALLEGRO_BITMAP* laberinto = al_load_bitmap("laberinto.png");
+    ALLEGRO_BITMAP* laberinto = al_load_bitmap("../images/laberinto.png");
     must_init(laberinto, "laberinto");
 
     must_init(al_init_primitives_addon(), "primitives"); //For creating shapes.
