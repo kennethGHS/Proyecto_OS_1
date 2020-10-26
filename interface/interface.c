@@ -100,8 +100,10 @@ int main(int argc, char *argv[]){
     al_start_timer(timer);
 
     //main loop.
-    create_head_thread_safe(3,3);
+    create_martian(0,0,0,0);
 
+    create_head_thread_safe(3,8);
+    add_process_list_thread_safe(15,7);
     while(1)
     {
         al_wait_for_event(queue, &event);
@@ -204,7 +206,7 @@ bool is_valid_pos(int x, int y){
     if (x>=16 || y>=16){
         return false;
     }
-    if (matrix_maze[y][x] == 1){
+    if (matrix_maze[y][x] != 0){
         return false;
     }else{
         return true;

@@ -67,7 +67,7 @@ void delete_list(struct process *headList) {
 }
 
 struct process * add_process_list(int period, int cycles, struct process *headList, int alienId, int alienBarId) {
-    int idPrev = 0;
+    int idPrev = headList->id;
     if (headList == NULL) {
         return NULL;
     }
@@ -83,6 +83,7 @@ struct process * add_process_list(int period, int cycles, struct process *headLi
     headList->next->idAlien = alienId;
     headList->next->idAlienBar = alienBarId;
     headList->next->next = NULL;
+    sem_init(&headList->next->mutex, 1, 0);
     return headList->next;
 }
 

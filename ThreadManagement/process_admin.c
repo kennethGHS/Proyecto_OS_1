@@ -124,13 +124,18 @@ struct process *create_head_thread_safe(int cyclesToFinish, int period) {
 
 struct process *add_process_list_thread_safe(int period, int cycles) {
     pthread_mutex_lock(&(mutex_use_list));
+    if (processHeadList==NULL){
+        pthread_mutex_unlock(&(mutex_use_list));
+        return create_head_thread_safe(cycles,period);
+    }
     int idAlien = create_martian(0,1,cycles,period) ;
     int idBar =idAlien;
-    struct process *newProcess = createHead(cycles, period, idAlien, idBar);
-    pthread_mutex_unlock(&(mutex_use_list));
+    struct process *newProcess = add_process_list(period,cycles,processHeadList,idAlien,idBar);
     pthread_t * threadSecond = malloc(sizeof(pthread_t));
     pthread_create(threadSecond,
                    NULL,
                    &execute_process, newProcess);
+    pthread_mutex_unlock(&(mutex_use_list));
+
     return newProcess;
 }
