@@ -15,15 +15,16 @@ struct process *get_next_struct_process(int typeCalend) {
 }
 
 void * execute_main_thread() {
-    mode = 1;
+    printf("Ejecutando lol");
+    printf("ejecutando lol %d \n",processHeadList->id);
     cycleNum = 0;
-    inExecution=1;
     while (1 == 1) {
         pthread_mutex_lock(&(mutex_use_list));
         if (processHeadList != NULL) {
             increase_energy_period(processHeadList, cycleNum);
             struct process *process_to_execute = get_next_struct_process(mode);
             if (process_to_execute==NULL){
+                printf("Ejecutando xd \n");
                 if(already_all_executed(processHeadList) == 1){
 //                    printf("Todos ejecutados ciclo %d\n",cycleNum);
                     cycleNum++;

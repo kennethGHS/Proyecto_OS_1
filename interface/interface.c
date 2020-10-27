@@ -59,6 +59,7 @@ int argc;
 char *argv[];
 
 int main(int argc, char *argv[]){
+    inExecution=1;
     //pthread_t * threadPrinc = malloc(sizeof(pthread_t));
     //pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
     start = false;
