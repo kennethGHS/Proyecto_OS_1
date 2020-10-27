@@ -336,8 +336,10 @@ void reduce_bar(int id, float percentage){
         MARTIANS[id].energy = 0;
         //reload_bar(id);
     }else{
-        MARTIAN_BARS[id].dot_x2 -= (int)(MARTIAN_BARS[id].dot_x2 - MARTIAN_BARS[id].dot_x1)*percentage/150;
-        printf("%i\n", MARTIAN_BARS[id].dot_x2);
+        //percentage = 1 - percentage;
+        MARTIAN_BARS[id].dot_x2 =  (int)(MARTIAN_BARS[id].dot_x1+150 - 150*percentage);//(int)(MARTIAN_BARS[id].dot_x2 - MARTIAN_BARS[id].dot_x1)*percentage/150;
+        printf("Percentage %f\n", percentage);
+        printf("%i\n", (MARTIAN_BARS[id].dot_x2 - MARTIAN_BARS[id].dot_x1) );
         MARTIANS[id].energy -= 1;
     }
 }
