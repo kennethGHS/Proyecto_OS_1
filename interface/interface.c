@@ -144,10 +144,10 @@ int main(int argc, char *argv[]){
                 if(event.keyboard.keycode == ALLEGRO_KEY_N){
                     show_warning(1);
                 }
-                if (event.keyboard.keycode == ALLEGRO_KEY_R){ //RM mode.
+                if (event.keyboard.keycode == ALLEGRO_KEY_R){ //RF mode
                     if (start == false){
                         printf("%i\n", start);
-                        //mode = 0;
+                        mode = 1;
                         pthread_t * threadPrinc = malloc(sizeof(pthread_t));
                         pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
                         start = true;
@@ -156,13 +156,14 @@ int main(int argc, char *argv[]){
                         continue;
                     }
                 }
-                if (event.keyboard.keycode == ALLEGRO_KEY_E){
+                if (event.keyboard.keycode == ALLEGRO_KEY_E){ //EDF mode.
                     if (start == false){
-                        //mode = 1;
-                        //pthread_t * threadPrinc = malloc(sizeof(pthread_t));
-                        //pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
+                        mode = 0;
+                        pthread_t * threadPrinc = malloc(sizeof(pthread_t));
+                        pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
                         start = true;
                     }else{
+                        printf("%i\n", start);
                         continue;
                     }
                 }
@@ -183,6 +184,11 @@ int main(int argc, char *argv[]){
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 530, 0, "SALIDA");
             al_draw_bitmap(laberinto, 0, 0, 0);
+            if(mode == 1){
+                al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 560, 0, "Modo RF");
+            }else if(mode == 0){
+                al_draw_text(font, al_map_rgb(255, 255, 255), 1030, 560, 0, "Modo EDF");
+            }
 
             //Aca se puede poner alguna logica.
 
