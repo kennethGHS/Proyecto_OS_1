@@ -15,7 +15,7 @@ pthread_mutex_t mutex_use_list;
 int mode;
 int stop_execution_var;
 int inExecution ;
-static struct process *processHeadList;
+struct process *processHeadList;
 int cycleNum;
 struct process *create_head_thread_safe(int cyclesToFinish, int period);
 struct process *add_process_list_thread_safe(int period, int cycles);
