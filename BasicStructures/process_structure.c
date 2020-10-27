@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "interval_structure.h"
+#include "../interface/interface.h"
 /**
  * Arreglar ya que puede generar problemas si todos son 0
  * @param headList
@@ -125,6 +126,7 @@ int increase_energy_period(struct process * head, int cycle){
                 return -1;
             }
             head->cyclesToFinish = head->cycles;
+            reload_bar(head->idAlienBar);
             //INCREMENTAR BARRA
         }
         head = head->next;

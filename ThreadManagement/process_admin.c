@@ -79,7 +79,7 @@ void * execute_process(void * process_execute){
         //caso sin energia ninguno
         if (isAvailable[0] ==0&& isAvailable[1] ==0&& isAvailable[2] ==0&&isAvailable[3]==0){
             float percent = (float)(process->cycles - process->cyclesToFinish)/process->cycles;
-            printf("%f \n");
+            printf("%f %d %d \n",percent,process->cycles,process->cyclesToFinish);
             reduce_bar(process->idAlienBar,percent);
             process_new_cycle(process->intervalList,cycleNum,process);
             continue;
@@ -111,7 +111,7 @@ void * execute_process(void * process_execute){
             matrix_maze[posYMatrix-1][posXMatrix] = process->id;
         }
         float percent = (float)(process->cycles - process->cyclesToFinish)/process->cycles;
-        printf("%f \n",percent);
+        printf("%f %d %d \n",percent,process->cycles,process->cyclesToFinish);
         reduce_bar(process->idAlienBar,percent);
         process_new_cycle(process->intervalList,cycleNum,process);
     }
