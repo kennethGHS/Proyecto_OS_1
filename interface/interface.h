@@ -11,11 +11,13 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_native_dialog.h>
 #include <unistd.h>
 #include <gtk/gtk.h>
 
 int matrix_maze[16][16] ;
 const char *martian_color_array[5] ;
+bool start;
 struct martian
 {
     int matrix_position_x;         // X position in matrix
@@ -39,6 +41,8 @@ struct life_bar{
     int r;
     int g;
     int b;
+    ALLEGRO_FONT* font;
+    char str[4];
 };
 
 typedef struct martian_data
@@ -62,14 +66,17 @@ void reduce_bar(int id, float percentage);
 void reload_bar(int id);
 void init_vars();
 //-----Some functions for interface--------
-int interface_init(int argc, char *argv[]);
+int interface_init_manual(int argc, char *argv[]);
 static void on_activate (GtkApplication *app);
 static void new_martian_window(GtkApplication *app);
 static void button_get_info(GtkWidget *widget, gpointer data);
+static void show_warning(int id);
+
 int martian_counter ;
 int bar_pos_x ;// First bar
 int bar_pos_y ;   // First bar
 ALLEGRO_KEYBOARD_STATE ks;
+ALLEGRO_DISPLAY* disp;
 char period[10];
 char energia[10];
 #endif //PROYECTO_OS_1_INTERFACE_H

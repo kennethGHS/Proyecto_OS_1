@@ -12,6 +12,8 @@
 #include "interface.h"
 #include "../ThreadManagement/process_admin.h"
 void init_vars(){
+
+
     martian_counter = -1;
     bar_pos_x = 1100;
     bar_pos_y = 0;
@@ -53,11 +55,13 @@ void init_vars(){
     printf("El valor en matriz es %d",matrix_maze[1][2]);
 
 }
+int argc;
+char *argv[];
+
 int main(int argc, char *argv[]){
-    pthread_t * threadPrinc = malloc(sizeof(pthread_t));
-    pthread_create(threadPrinc,
-                   NULL,
-                   &execute_main_thread, NULL);
+    //pthread_t * threadPrinc = malloc(sizeof(pthread_t));
+    //pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
+    start = false;
     init_vars();
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
@@ -69,7 +73,8 @@ int main(int argc, char *argv[]){
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     must_init(queue, "queue");
 
-    ALLEGRO_DISPLAY* disp = al_create_display(2000, 1024);
+    //ALLEGRO_DISPLAY* disp = al_create_display(2000, 1024);
+    disp = al_create_display(2000, 1024);
     must_init(disp, "display");
 
     ALLEGRO_FONT* font = al_create_builtin_font();
@@ -80,6 +85,8 @@ int main(int argc, char *argv[]){
     must_init(laberinto, "laberinto");
 
     must_init(al_init_primitives_addon(), "primitives"); //For creating shapes.
+
+    //al_init_native_dialog_addon();
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
@@ -104,6 +111,8 @@ int main(int argc, char *argv[]){
 
     create_head_thread_safe(3,8);
     add_process_list_thread_safe(15,7);
+
+    int prueba = 10;
     while(1)
     {
         al_wait_for_event(queue, &event);
@@ -128,9 +137,35 @@ int main(int argc, char *argv[]){
                 }
                 if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){
                     //create_martian(martian_counter,martian_counter);
-                    interface_init(argc, argv);
+                    interface_init_manual(argc, argv);
                     g_free(md);
                 }
+                if(event.keyboard.keycode == ALLEGRO_KEY_N){
+                    show_warning(1);
+                }
+                if (event.keyboard.keycode == ALLEGRO_KEY_R){ //RM mode.
+                    if (start == false){
+                        printf("%i\n", start);
+                        //mode = 0;
+                        pthread_t * threadPrinc = malloc(sizeof(pthread_t));
+                        pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
+                        start = true;
+                    }else{
+                        printf("%i\n", start);
+                        continue;
+                    }
+                }
+                if (event.keyboard.keycode == ALLEGRO_KEY_E){
+                    if (start == false){
+                        //mode = 1;
+                        //pthread_t * threadPrinc = malloc(sizeof(pthread_t));
+                        //pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
+                        start = true;
+                    }else{
+                        continue;
+                    }
+                }
+
                 if(event.keyboard.keycode != ALLEGRO_KEY_X){
                     break;
                 }
@@ -150,14 +185,17 @@ int main(int argc, char *argv[]){
 
             //Aca se puede poner alguna logica.
 
-            sleep(1);
+            //sleep(1);
 
             //Este for tiene que estar para poder pintar los marcianos que se vayan agregando.
            for (int i = 0; i < martian_counter; i++)
            {
                al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
                al_draw_filled_rectangle(MARTIAN_BARS[i].dot_x1, MARTIAN_BARS[i].dot_y1, MARTIAN_BARS[i].dot_x2, MARTIAN_BARS[i].dot_y2, al_map_rgba_f(MARTIAN_BARS[i].r, MARTIAN_BARS[i].g, MARTIAN_BARS[i].b, 0.5));
+               al_draw_text(MARTIAN_BARS[i].font, al_map_rgb(255, 255, 255), MARTIAN_BARS[i].dot_x2, MARTIAN_BARS[i].dot_y1, 0, MARTIAN_BARS[i].str);
            }
+
+
 
            //al_draw_filled_rectangle(1100, 0, 1250, 50, al_map_rgba_f(0, 0, 0.5, 0.5));
 
@@ -165,6 +203,14 @@ int main(int argc, char *argv[]){
             al_flip_display();
 
 
+            if (prueba == 5){
+                //show_warning(1);
+                prueba = 100;
+            }else if(prueba > 99){
+                continue;
+            }else{
+                prueba--;
+            }
 
 
 
@@ -272,6 +318,8 @@ void martian_bar(int id, int color){
         new_Bar.g = 255;
         new_Bar.b = 200;
     }
+    new_Bar.font = al_create_builtin_font();
+    sprintf(new_Bar.str, "%d", new_Bar.id);
     MARTIAN_BARS[id] = new_Bar;
 }
 
@@ -291,25 +339,7 @@ void reload_bar(int id){
     MARTIANS[id].energy = MARTIANS[id].energy_backup;
 }
 
-static void button_get_info(GtkWidget *widget, gpointer data){
-    printf("Hola\n");
-    martian_data* md = (martian_data*)data;
-    const gchar *period;
-    const gchar *energy;
 
-    period = gtk_entry_get_text (GTK_ENTRY (md->period));
-    energy = gtk_entry_get_text (GTK_ENTRY (md->energy));
-    g_print ("Contents of entries:\n%s\n%s\n", period, energy);
-
-    int martian_period = atoi(period);
-    int martian_energy = atoi(energy);
-
-    create_martian(martian_counter, martian_counter, martian_energy, martian_period);
-
-    printf("Period %i and energy %i\n", martian_period, martian_energy);
-
-
-}
 
 static void on_activate (GtkApplication *app) {
   // Create a new window
@@ -330,6 +360,27 @@ static void on_activate (GtkApplication *app) {
   gtk_container_add(GTK_CONTAINER(window), label);
   //gtk_container_add(GTK_CONTAINER(window), button);
   gtk_widget_show_all (window);
+}
+//-----------------Manual mode-------------------------------//
+static void button_get_info(GtkWidget *widget, gpointer data){
+    printf("Hola\n");
+    martian_data* md = (martian_data*)data;
+    const gchar *period;
+    const gchar *energy;
+
+    period = gtk_entry_get_text (GTK_ENTRY (md->period));
+    energy = gtk_entry_get_text (GTK_ENTRY (md->energy));
+    g_print ("Contents of entries:\n%s\n%s\n", period, energy);
+
+    int martian_period = atoi(period);
+    int martian_energy = atoi(energy);
+
+    //create_martian(martian_counter, martian_counter, martian_energy, martian_period);
+    add_process_list_thread_safe(martian_period, martian_energy);
+
+    printf("Period %i and energy %i\n", martian_period, martian_energy);
+
+
 }
 
 static void new_martian_window(GtkApplication *app){
@@ -367,9 +418,37 @@ static void new_martian_window(GtkApplication *app){
     gtk_widget_show_all (window);
 }
 
-int interface_init(int argc, char *argv[]){
+int interface_init_manual(int argc, char *argv[]){
     GtkApplication *app = gtk_application_new ("com.example.GtkApplication", G_APPLICATION_FLAGS_NONE);
     //g_signal_connect (app, "activate", G_CALLBACK (on_activate), NULL);
     g_signal_connect (app, "activate", G_CALLBACK (new_martian_window), NULL);
     return g_application_run (G_APPLICATION (app), argc, argv);
 }
+
+
+static void show_warning(int id) {
+
+    //GtkApplication *app = gtk_application_new ("com.example.GtkApplication1", G_APPLICATION_FLAGS_NONE);
+    //GtkWindow *window = gtk_application_window_new (app);
+    gtk_init(&argc, &argv);
+    const char str[5];
+    sprintf(str, "%d", id);
+    GtkWidget *dialog = gtk_message_dialog_new(NULL,
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_WARNING,
+                                    GTK_BUTTONS_OK,
+                                    "No se puede calendarizar este proceso.");
+
+    gtk_window_set_title(GTK_WINDOW(dialog), str);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gtk_widget_destroy(dialog);
+
+    gtk_window_close(GTK_WINDOW(dialog));
+
+
+
+
+    //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
+}
+
