@@ -11,8 +11,6 @@
 #include <pthread.h>
 #include "interface.h"
 void init_vars(){
-
-
     martian_counter = -1;
     bar_pos_x = 1100;
     bar_pos_y = 0;
@@ -61,15 +59,28 @@ char *argv[];
  * @param process_head
  */
 void move_inside_intervals(struct process * process_head){
+    int x_init_1 = 1300;
+    int y_init_1 = 870;
+    int index = 0;
     while (process_head!=NULL){
+        printf("Entro a la función y al while\n");
         struct interval * to_move = process_head->intervalList;
         while (to_move!=NULL){
             //Aqui puede llamar el metodo, el proceso contiene el numero de alien y de ahi
             //le puede sacar el color y el numero para graficarlo, tambien saca el intervalo
             //META FUNCION AQUI
 
+            int step = (int)1100/cycleNum;
+            int init_x_pos = 1300;
+            printf("Unidades de inicio %i\n", to_move->unitBegin);
+            int a = (int)((to_move->unitBegin*step) + 1300);
+            int b = (int)((to_move->unitEnd*step) + 1300);
+            al_draw_filled_rectangle(a,y_init_1 ,b ,y_init_1+ 30 , al_map_rgba_f(MARTIAN_BARS[index].r, MARTIAN_BARS[index].g, MARTIAN_BARS[index].b, 0.5));
+
             to_move = to_move->nextInterval; // mueve al siguiente
         }
+        y_init_1 -= 30;
+        index++;
         process_head = process_head->next;
     }
 }
@@ -79,6 +90,7 @@ int main(int argc, char *argv[]){
     //pthread_t * threadPrinc = malloc(sizeof(pthread_t));
     //pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
     start = false;
+    pause_ = false;
     init_vars();
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
@@ -91,7 +103,7 @@ int main(int argc, char *argv[]){
     must_init(queue, "queue");
 
     //ALLEGRO_DISPLAY* disp = al_create_display(2000, 1024);
-    disp = al_create_display(2000, 1024);
+    disp = al_create_display(2500, 1024);
     must_init(disp, "display");
 
     ALLEGRO_FONT* font = al_create_builtin_font();
@@ -184,7 +196,13 @@ int main(int argc, char *argv[]){
                     }
                 }
 
-                if(event.keyboard.keycode != ALLEGRO_KEY_X){
+                if(event.keyboard.keycode == ALLEGRO_KEY_X){// Stop the excecution and show the graphics.
+                    printf("Cycles -> %d\n", cycleNum);
+                    stop_execution_var = -1;
+                    pause_ = true;
+                    //break;
+                }
+                if(event.keyboard.keycode != ALLEGRO_KEY_SPACE){
                     break;
                 }
 
@@ -210,6 +228,23 @@ int main(int argc, char *argv[]){
 
             //sleep(1);
 
+            if(pause_ == true){
+                int step = (int)1100/cycleNum;
+                int init_x_pos = 1300;
+                for (int i = 0; i <= cycleNum; i++){
+                    al_draw_line(init_x_pos, 50, init_x_pos, 900, al_map_rgb_f(255, 255, 255), 1);
+                    init_x_pos += step;
+                }
+                init_x_pos += step;
+                al_draw_line(init_x_pos, 50, init_x_pos, 900, al_map_rgb_f(255, 255, 255), 1);
+                al_draw_line(1300, 900, 2400, 900, al_map_rgb_f(255, 255, 255), 2);
+                al_draw_text(font, al_map_rgb_f(255, 255, 255), 1850, 930, 0, "Ciclos(1 segundo)");
+
+
+                move_inside_intervals(processHeadList);
+
+            }
+
             //Este for tiene que estar para poder pintar los marcianos que se vayan agregando.
            for (int i = 0; i < martian_counter; i++)
            {
@@ -224,16 +259,6 @@ int main(int argc, char *argv[]){
 
             //Everything here will be shown.
             al_flip_display();
-
-
-            if (prueba == 5){
-                //show_warning(1);
-                prueba = 100;
-            }else if(prueba > 99){
-                continue;
-            }else{
-                prueba--;
-            }
 
 
 

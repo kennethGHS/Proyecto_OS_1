@@ -21,6 +21,7 @@
 int matrix_maze[16][16] ;
 const char *martian_color_array[5] ;
 bool start;
+bool pause_;
 struct martian
 {
     int matrix_position_x;         // X position in matrix
