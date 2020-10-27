@@ -78,7 +78,10 @@ void * execute_process(void * process_execute){
         }
         //caso sin energia ninguno
         if (isAvailable[0] ==0&& isAvailable[1] ==0&& isAvailable[2] ==0&&isAvailable[3]==0){
-            //Solo reducir la energia
+            float percent = (float)(process->cycles - process->cyclesToFinish)/process->cycles;
+            printf("%f \n");
+            reduce_bar(process->idAlienBar,0.1-percent);
+            process_new_cycle(process->intervalList,cycleNum,process);
             continue;
         }
         int index_available = rand()%4;
@@ -107,7 +110,10 @@ void * execute_process(void * process_execute){
             move_martian(process->idAlien,posXMatrix,posYMatrix-1);
             matrix_maze[posYMatrix-1][posXMatrix] = process->id;
         }
-//        add_new_interval(process->intervalList,cycleNum);
+        float percent = (float)(process->cycles - process->cyclesToFinish)/process->cycles;
+        printf("%f \n",percent);
+        reduce_bar(process->idAlienBar,0.1-percent);
+        process_new_cycle(process->intervalList,cycleNum,process);
     }
 }
 struct process *create_head_thread_safe(int cyclesToFinish, int period) {

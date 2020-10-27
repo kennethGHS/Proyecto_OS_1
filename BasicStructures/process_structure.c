@@ -78,6 +78,7 @@ struct process * add_process_list(int period, int cycles, struct process *headLi
     headList->next = malloc(sizeof(struct process));
     headList->next->cycles = cycles;
     headList->next->period = period;
+    headList->next->intervalList = NULL;
     headList->next->cyclesToFinish = 0;
     headList->next->id = idPrev + 1;
     headList->next->idAlien = alienId;
@@ -98,7 +99,7 @@ int process_cycle_process(int cycle, struct process *process) {
             process->intervalList->unitEnd = cycle + 1;
             return 0;
         } else {
-            process_new_cycle(process->intervalList, cycle);
+            process_new_cycle(process->intervalList, cycle,process);
             return 0;
         }
     }
@@ -113,6 +114,7 @@ struct process *createHead(int cyclesToFinish, int period,int alienId, int alien
     newProcess->idAlien = alienId;
     newProcess->idAlienBar = alienBarId;
     newProcess->next = NULL;
+    newProcess->intervalList = NULL;
     sem_init(&newProcess->mutex, 1, 0);
     return newProcess;
 }
