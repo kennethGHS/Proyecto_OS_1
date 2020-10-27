@@ -4,6 +4,9 @@
 
 #ifndef PROYECTO_OS_1_INTERFACE_H
 #define PROYECTO_OS_1_INTERFACE_H
+#include "../ThreadManagement/process_admin.h"
+#include "../BasicStructures/interval_structure.h"
+#include "../BasicStructures/process_structure.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,13 +68,13 @@ void martian_bar(int id, int color);
 void reduce_bar(int id, float percentage);
 void reload_bar(int id);
 void init_vars();
+void move_inside_intervals(struct process * process_head);
 //-----Some functions for interface--------
 int interface_init_manual(int argc, char *argv[]);
 static void on_activate (GtkApplication *app);
 static void new_martian_window(GtkApplication *app);
 static void button_get_info(GtkWidget *widget, gpointer data);
 static void show_warning(int id);
-
 int martian_counter ;
 int bar_pos_x ;// First bar
 int bar_pos_y ;   // First bar

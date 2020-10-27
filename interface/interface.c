@@ -10,7 +10,6 @@
 //Exdcuting: ./interface
 #include <pthread.h>
 #include "interface.h"
-#include "../ThreadManagement/process_admin.h"
 void init_vars(){
 
 
@@ -57,6 +56,23 @@ void init_vars(){
 }
 int argc;
 char *argv[];
+/**
+ * Le pasa el head que tiene mi process admin "processHeadList"
+ * @param process_head
+ */
+void move_inside_intervals(struct process * process_head){
+    while (process_head!=NULL){
+        struct interval * to_move = process_head->intervalList;
+        while (to_move!=NULL){
+            //Aqui puede llamar el metodo, el proceso contiene el numero de alien y de ahi
+            //le puede sacar el color y el numero para graficarlo, tambien saca el intervalo
+            //META FUNCION AQUI
+
+            to_move = to_move->nextInterval; // mueve al siguiente
+        }
+        process_head = process_head->next;
+    }
+}
 
 int main(int argc, char *argv[]){
     inExecution=1;
