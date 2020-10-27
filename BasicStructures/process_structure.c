@@ -26,7 +26,7 @@ struct process *get_closest_finish(struct process *headList) {
             }
 
         } else {
-            if (leastCycles->cyclesToFinish > headList->cyclesToFinish) {
+            if (leastCycles->cyclesToFinish > headList->cyclesToFinish && headList->cyclesToFinish!=0) {
                 leastCycles = headList;
             }
         }
@@ -48,7 +48,7 @@ struct process * get_min_relation(struct process *headList){
                 leastRelation = headList;
             }
         } else {
-            if (leastRelation->cycles/leastRelation->period > headList->cycles/headList->period ) {
+            if ((float )leastRelation->cycles/leastRelation->period > (float )headList->cycles/headList->period ) {
                 leastRelation = headList;
             }
         }

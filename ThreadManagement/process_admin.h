@@ -13,6 +13,7 @@ void * execute_main_thread();
 
 pthread_mutex_t mutex_use_list;
 int mode;
+int stop_execution_var;
 int inExecution ;
 static struct process *processHeadList;
 int cycleNum;

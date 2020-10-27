@@ -19,6 +19,9 @@ void * execute_main_thread() {
     printf("ejecutando lol %d \n",processHeadList->id);
     cycleNum = 0;
     while (1 == 1) {
+        if (stop_execution_var==-1){
+            break;
+        }
         pthread_mutex_lock(&(mutex_use_list));
         if (processHeadList != NULL) {
             increase_energy_period(processHeadList, cycleNum);
@@ -30,7 +33,7 @@ void * execute_main_thread() {
                     cycleNum++;
                 }
                 pthread_mutex_unlock(&(mutex_use_list));
-                sleep(2);
+                sleep(1);
                 continue;
             }
 //            printf("Ciclos a ejecutar %d",process_to_execute->cyclesToFinish);
@@ -39,7 +42,7 @@ void * execute_main_thread() {
             cycleNum++;
         }
         pthread_mutex_unlock(&(mutex_use_list));
-        sleep(2);
+        sleep(1);
     }
 }
 void * execute_process(void * process_execute){
