@@ -70,6 +70,7 @@ void reduce_bar(int id, float percentage);
 void reload_bar(int id);
 void init_vars();
 void move_inside_intervals(struct process * process_head);
+void restart_interface();
 //-----Some functions for interface--------
 int interface_init_manual(int argc, char *argv[]);
 static void on_activate (GtkApplication *app);
