@@ -47,7 +47,7 @@ struct process * get_min_relation(struct process *headList){
                 leastRelation = headList;
             }
         } else {
-            if (((float )1.0/leastRelation->period > (float )1.0/headList->period)&&headList->cyclesToFinish!=0 && (headList->available==1) ) {
+            if (((float )1.0/leastRelation->period < (float )1.0/headList->period)&&headList->cyclesToFinish!=0 && (headList->available==1) ) {
                 leastRelation = headList;
             }
         }
