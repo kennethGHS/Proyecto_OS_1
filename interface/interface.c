@@ -138,8 +138,8 @@ int main(int argc, char *argv[]){
     //main loop.
     create_martian(0,0,0,0);
 
-    create_head_thread_safe(3,8);
-    add_process_list_thread_safe(15,7);
+//    create_head_thread_safe(3,8);
+//    add_process_list_thread_safe(15,7);
 
     int prueba = 10;
     while(1)
@@ -477,7 +477,7 @@ int interface_init_manual(int argc, char *argv[]){
 }
 
 
-static void show_warning(int id) {
+void show_warning(int id) {
 
     //GtkApplication *app = gtk_application_new ("com.example.GtkApplication1", G_APPLICATION_FLAGS_NONE);
     //GtkWindow *window = gtk_application_window_new (app);
@@ -488,7 +488,7 @@ static void show_warning(int id) {
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_WARNING,
                                     GTK_BUTTONS_OK,
-                                    "No se puede calendarizar este proceso.");
+                                    "No se puede calendarizar los procesos, error critico en el sistema cierre la aplicacion.");
 
     gtk_window_set_title(GTK_WINDOW(dialog), str);
     gtk_dialog_run(GTK_DIALOG(dialog));

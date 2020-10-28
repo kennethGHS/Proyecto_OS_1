@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "interval_structure.h"
-#include "../interface/interface.h"
 /**
  * Arreglar ya que puede generar problemas si todos son 0
  * @param headList
@@ -13,7 +12,7 @@
  */
 struct process *get_closest_finish(struct process *headList) {
     struct process *leastCycles = NULL;
-    while (headList!=NULL && headList->cyclesToFinish==0){
+    while ( (headList!=NULL && headList->cyclesToFinish==0 )|| (headList!=NULL && headList->available==0)){
         headList = headList->next;
     }
     if (headList==NULL){
@@ -26,7 +25,7 @@ struct process *get_closest_finish(struct process *headList) {
             }
 
         } else {
-            if (leastCycles->cyclesToFinish > headList->cyclesToFinish && headList->cyclesToFinish!=0) {
+            if (leastCycles->cyclesToFinish > headList->cyclesToFinish && headList->cyclesToFinish!=0 && headList->available==1) {
                 leastCycles = headList;
             }
         }
@@ -36,7 +35,7 @@ struct process *get_closest_finish(struct process *headList) {
 }
 struct process * get_min_relation(struct process *headList){
     struct process *leastRelation = NULL;
-    while (headList!=NULL && headList->cyclesToFinish==0){
+    while ((headList!=NULL && headList->cyclesToFinish==0 )|| (headList!=NULL && (headList->available==0))){
         headList = headList->next;
     }
     if (headList==NULL){
@@ -44,11 +43,11 @@ struct process * get_min_relation(struct process *headList){
     }
     while (headList != NULL) {
         if (leastRelation == NULL) {
-            if (headList->cyclesToFinish != 0) {
+            if (headList->cyclesToFinish != 0 || (headList->available==0)) {
                 leastRelation = headList;
             }
         } else {
-            if ((float )leastRelation->cycles/leastRelation->period > (float )headList->cycles/headList->period ) {
+            if (((float )1.0/leastRelation->period > (float )1.0/headList->period)&&headList->cyclesToFinish!=0 && (headList->available==1) ) {
                 leastRelation = headList;
             }
         }
@@ -85,6 +84,7 @@ struct process * add_process_list(int period, int cycles, struct process *headLi
     headList->next->idAlien = alienId;
     headList->next->idAlienBar = alienBarId;
     headList->next->next = NULL;
+    headList->next->available=1;
     sem_init(&headList->next->mutex, 1, 0);
     return headList->next;
 }
@@ -116,16 +116,23 @@ struct process *createHead(int cyclesToFinish, int period,int alienId, int alien
     newProcess->idAlienBar = alienBarId;
     newProcess->next = NULL;
     newProcess->intervalList = NULL;
+    newProcess->available=1;
     sem_init(&newProcess->mutex, 1, 0);
     return newProcess;
 }
 int increase_energy_period(struct process * head, int cycle){
     while (head!=NULL){
         if (cycle%head->period==0){
-            if (head->cyclesToFinish !=0){
+            if (head->cyclesToFinish !=0 && (head->available==1)){
+                show_warning(0);
                 return -1;
+            } else{
+                if (head->available==1){
+                    head->cyclesToFinish = head->cycles;
+                }
             }
             head->cyclesToFinish = head->cycles;
+            printf("Recarga en ciclo %d, el proceso %d con periodo %d \n",cycle,head->id,head->period);
             reload_bar(head->idAlienBar);
             //INCREMENTAR BARRA
         }

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include "../interface/interface.h"
 #include <semaphore.h>
 struct process{
     struct process * next;
@@ -20,6 +21,7 @@ struct process{
     int id;
     int idAlien;
     int idAlienBar;
+    int available;
     sem_t  mutex;
 };
 int already_all_executed(struct process * head);
