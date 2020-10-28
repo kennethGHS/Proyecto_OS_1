@@ -202,6 +202,9 @@ int main(int argc, char *argv[]){
                     pause_ = true;
                     //break;
                 }
+                if (event.keyboard.keycode == ALLEGRO_KEY_Q){
+                    restart_interface();
+                }
                 if(event.keyboard.keycode != ALLEGRO_KEY_SPACE){
                     break;
                 }
@@ -501,5 +504,16 @@ void show_warning(int id) {
 
 
     //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
+}
+
+void restart_interface(){
+    memset(MARTIANS, 0, sizeof(struct martian));
+    memset(MARTIAN_BARS, 0, sizeof(struct life_bar));
+    martian_counter = -1;
+    start = false;
+    pause_ = false;
+    struct martian MARTIANS[100]; // Array of martians.
+    struct life_bar MARTIAN_BARS[100];
+    init_vars();
 }
 
