@@ -77,6 +77,7 @@ static void on_activate (GtkApplication *app);
 static void new_martian_window(GtkApplication *app);
 static void button_get_info(GtkWidget *widget, gpointer data);
 void show_warning(int id);
+void show_warning_values();
 int martian_counter ;
 int bar_pos_x ;// First bar
 int bar_pos_y ;   // First bar

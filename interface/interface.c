@@ -429,8 +429,14 @@ static void button_get_info(GtkWidget *widget, gpointer data){
     int martian_period = atoi(period);
     int martian_energy = atoi(energy);
 
+    if (martian_period <= 0 || martian_energy <= 0){
+        show_warning_values();
+    }else{
+        add_process_list_thread_safe(martian_period, martian_energy);
+    }
+
     //create_martian(martian_counter, martian_counter, martian_energy, martian_period);
-    add_process_list_thread_safe(martian_period, martian_energy);
+
 
     printf("Period %i and energy %i\n", martian_period, martian_energy);
 
@@ -500,8 +506,26 @@ void show_warning(int id) {
 
     gtk_window_close(GTK_WINDOW(dialog));
 
+    //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
+}
 
+void show_warning_values() {
 
+    //GtkApplication *app = gtk_application_new ("com.example.GtkApplication1", G_APPLICATION_FLAGS_NONE);
+    //GtkWindow *window = gtk_application_window_new (app);
+    gtk_init(&argc, &argv);
+    GtkWidget *dialog = gtk_message_dialog_new(NULL,
+                                               GTK_DIALOG_DESTROY_WITH_PARENT,
+                                               GTK_MESSAGE_WARNING,
+                                               GTK_BUTTONS_OK,
+                                               "Por favor ingrese valores de energia y periodo mayores a 0.");
+
+    gtk_window_set_title(GTK_WINDOW(dialog), "Error en los valores de ingreso");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gtk_widget_destroy(dialog);
+
+    gtk_window_close(GTK_WINDOW(dialog));
 
     //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
 }
