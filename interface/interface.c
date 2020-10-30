@@ -10,6 +10,11 @@
 //Exdcuting: ./interface
 #include <pthread.h>
 #include "interface.h"
+/*
+ * This function initialize all the required variables like the mapped maze in matrix, initial position of the martians
+ * initial bar status, initial martian counter and the path of the different images of the martians.
+ * */
+
 void init_vars(){
     martian_counter = -1;
     bar_pos_x = 1100;
@@ -140,8 +145,6 @@ int main(int argc, char *argv[]){
 
 //    create_head_thread_safe(3,8);
 //    add_process_list_thread_safe(15,7);
-
-    int prueba = 10;
     while(1)
     {
         al_wait_for_event(queue, &event);
@@ -174,13 +177,11 @@ int main(int argc, char *argv[]){
                 }
                 if (event.keyboard.keycode == ALLEGRO_KEY_R){ //RF mode
                     if (start == false){
-                        printf("%i\n", start);
                         mode = 1;
                         pthread_t * threadPrinc = malloc(sizeof(pthread_t));
                         pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
                         start = true;
                     }else{
-                        printf("%i\n", start);
                         continue;
                     }
                 }
@@ -191,7 +192,6 @@ int main(int argc, char *argv[]){
                         pthread_create(threadPrinc,NULL, &execute_main_thread, NULL);
                         start = true;
                     }else{
-                        printf("%i\n", start);
                         continue;
                     }
                 }
@@ -229,8 +229,7 @@ int main(int argc, char *argv[]){
 
             //Aca se puede poner alguna logica.
 
-            //sleep(1);
-
+            //If pause is true, then the report is shown.
             if(pause_ == true){
                 int step = (int)1100/cycleNum;
                 int init_x_pos = 1300;
@@ -248,7 +247,7 @@ int main(int argc, char *argv[]){
 
             }
 
-            //Este for tiene que estar para poder pintar los marcianos que se vayan agregando.
+            //This "for" refresh the display, printing al the status of the martians and the life bars.
            for (int i = 0; i < martian_counter; i++)
            {
                al_draw_bitmap(MARTIANS[i].martian_color, MARTIANS[i].pos_x, MARTIANS[i].pos_y, 0);
@@ -283,6 +282,11 @@ int main(int argc, char *argv[]){
 
 }
 
+/*
+ * must_init function verifies the status of each intialization, ensuring everything goes well. Its params are
+ * the object to evaluate and a description given. If the object intialization is false, then the program
+ * shuts down.
+ * */
 void must_init(bool test, const char *description)
 {
     if(test) return;
@@ -291,10 +295,21 @@ void must_init(bool test, const char *description)
     exit(1);
 }
 
+/*
+ * matric_to_image convert some position in the matrix that describes the maze, and convert the values in to
+ * canvas numbers. The new values that are traduce are passed by reference, so those params are the outout of the current
+ * function.
+ * */
+
 void matrix_to_image(int x_matrix, int y_matrix, int *x_image, int *y_image){
     (*x_image) = 64*x_matrix;
     (*y_image) = 64*y_matrix;
 }
+
+/*
+ * is_valid_pos return false if the cordinates that are consulted are available for the martian to go ahead or not.
+ * The params are a certain pair of coordinates.
+ * */
 
 bool is_valid_pos(int x, int y){
     if (x<0 || y<0){
@@ -309,6 +324,11 @@ bool is_valid_pos(int x, int y){
         return true;
     }
 }
+
+/*
+ * create_martian abstracts the way of creating martians. It takes the initial position, the energy and period to
+ * create the martian in a correct way. It returns the martian id for future references.
+ * */
 
 int create_martian(int pos_x, int pos_y, int energy, int period){
     int pos_x_converted = 0;
@@ -331,6 +351,10 @@ int create_martian(int pos_x, int pos_y, int energy, int period){
     return new_Martian.id;
 }
 
+/*
+ * move_martian uses the id of a certain martian, and the new x and y position to be moved.
+ * */
+
 void move_martian(int id, int x, int y){
     int new_x = 0;
     int new_y = 0;
@@ -340,6 +364,11 @@ void move_martian(int id, int x, int y){
     MARTIANS[id].pos_x = new_x;
     MARTIANS[id].pos_y = new_y;
 }
+
+/*
+ * martian_bar creates a life bar for each created martian. It only takes the id of the martian and the color, then
+ * it is assign to the bar.
+ * */
 
 void martian_bar(int id, int color){
     struct life_bar new_Bar;
@@ -374,6 +403,10 @@ void martian_bar(int id, int color){
     MARTIAN_BARS[id] = new_Bar;
 }
 
+/*
+ * reduce_bar takes a certain bar and reduces it as the life of the martian decreases, so it is posible to
+ * watch what is the status in the interface. It takes the id of the martian and the percentage of reduction.
+ * */
 void reduce_bar(int id, float percentage){
     if (MARTIAN_BARS[id].dot_x2 <= MARTIAN_BARS[id].dot_x1){
         MARTIAN_BARS[id].dot_x2 = MARTIAN_BARS[id].dot_x1;
@@ -388,13 +421,18 @@ void reduce_bar(int id, float percentage){
     }
 }
 
+/*
+ * reload_bar is used only when a martian has reloaded energy, it is a simple representation in interface.
+ * */
 void reload_bar(int id){
     MARTIAN_BARS[id].dot_x2 = bar_pos_x + 150;
     MARTIANS[id].energy = MARTIANS[id].energy_backup;
 }
 
 
-
+/*
+ * on_activate is an example of a generic window in GTK.
+ * */
 static void on_activate (GtkApplication *app) {
   // Create a new window
   GtkWidget *window = gtk_application_window_new (app);
@@ -416,6 +454,10 @@ static void on_activate (GtkApplication *app) {
   gtk_widget_show_all (window);
 }
 //-----------------Manual mode-------------------------------//
+/*
+ * button_get_info get the information inside the text entries in which the user assign a period and life. It takes
+ * the window attached(father window) and a pointer assigned to the data from the entries.
+ * */
 static void button_get_info(GtkWidget *widget, gpointer data){
     printf("Hola\n");
     martian_data* md = (martian_data*)data;
@@ -435,14 +477,16 @@ static void button_get_info(GtkWidget *widget, gpointer data){
         add_process_list_thread_safe(martian_period, martian_energy);
     }
 
-    //create_martian(martian_counter, martian_counter, martian_energy, martian_period);
-
 
     printf("Period %i and energy %i\n", martian_period, martian_energy);
 
 
 }
 
+/*
+ * new_martian_window helps the user in creating a new martian with period and the energy attached to each martian.
+ * It takes the father window as a param.
+ * */
 static void new_martian_window(GtkApplication *app){
     GtkWidget *window = gtk_application_window_new (app);
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
@@ -478,6 +522,9 @@ static void new_martian_window(GtkApplication *app){
     gtk_widget_show_all (window);
 }
 
+/*
+ * interface_init_manual starts a main window GTK application that gets params from executable.
+ * */
 int interface_init_manual(int argc, char *argv[]){
     GtkApplication *app = gtk_application_new ("com.example.GtkApplication", G_APPLICATION_FLAGS_NONE);
     //g_signal_connect (app, "activate", G_CALLBACK (on_activate), NULL);
@@ -485,7 +532,10 @@ int interface_init_manual(int argc, char *argv[]){
     return g_application_run (G_APPLICATION (app), argc, argv);
 }
 
-
+/*
+ * show_warning is used to show everytime a set of processes are not schedule available. It takes as a param the
+ * id of certain process.
+ * */
 void show_warning(int id) {
 
     //GtkApplication *app = gtk_application_new ("com.example.GtkApplication1", G_APPLICATION_FLAGS_NONE);
@@ -505,10 +555,12 @@ void show_warning(int id) {
     gtk_widget_destroy(dialog);
 
     gtk_window_close(GTK_WINDOW(dialog));
-
-    //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
 }
 
+/*
+ * show_warning_values is used when the user does not assign a positive and greatter than 0 values to period and
+ * energy to a certain martian.
+ * */
 void show_warning_values() {
 
     //GtkApplication *app = gtk_application_new ("com.example.GtkApplication1", G_APPLICATION_FLAGS_NONE);
@@ -526,10 +578,12 @@ void show_warning_values() {
     gtk_widget_destroy(dialog);
 
     gtk_window_close(GTK_WINDOW(dialog));
-
-    //al_show_native_message_box(disp,str, "Error", "El proceso no se pudo calendarizar",NULL, NULL);
 }
 
+/*
+ * restart_interface is used in case the user want to restart the entire program. It cleans martian array,
+ * martian bars array, start and pause flags, and re init the variables.
+ * */
 void restart_interface(){
     memset(MARTIANS, 0, sizeof(struct martian));
     memset(MARTIAN_BARS, 0, sizeof(struct life_bar));
